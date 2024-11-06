@@ -25,11 +25,13 @@ import snownee.kiwi.loader.Platform;
 import snownee.snow.GameEvents;
 import snownee.snow.SnowCommonConfig;
 import snownee.snow.SnowRealMagic;
+import snownee.snow.compat.sereneseasons.SereneSeasonsCompat;
 
 @Mod(SnowRealMagic.MODID)
 public class CommonProxy implements ModInitializer {
 	public static boolean terraforged;
 	public static boolean fabricSeasons = Platform.isModLoaded("seasons");
+	public static boolean sereneSeasons = Platform.isModLoaded("sereneseasons");
 
 	public static boolean isHot(FluidState fluidState, Level level, BlockPos pos) {
 		return fluidState.getType().getPickupSound().orElse(null) == SoundEvents.BUCKET_FILL_LAVA || fluidState.is(FluidTags.LAVA);
@@ -40,6 +42,10 @@ public class CommonProxy implements ModInitializer {
 	}
 
 	public static void weatherTick(ServerLevel level, Runnable action) {
+		if (sereneSeasons) {
+			SereneSeasonsCompat.weatherTick(level, action);
+			return;
+		}
 		if (level.random.nextInt(SnowCommonConfig.weatherTickSlowness) == 0) {
 			action.run();
 		}
@@ -53,7 +59,7 @@ public class CommonProxy implements ModInitializer {
 			return true;
 		}
 		// there is no thundering in winter in Serene Seasons
-		if (SnowCommonConfig.snowAccumulationDuringSnowstorm && level.isThundering()) {
+		if (SnowCommonConfig.snowAccumulationDuringSnowstorm && (level.isThundering() || sereneSeasons)) {
 			return true;
 		}
 		return false;
@@ -66,6 +72,9 @@ public class CommonProxy implements ModInitializer {
 	public static boolean shouldMelt(Level level, BlockPos pos, Holder<Biome> biome, int layers) {
 		if (SnowCommonConfig.snowNeverMelt) {
 			return false;
+		}
+		if (sereneSeasons) {
+			return SereneSeasonsCompat.shouldMelt(level, pos, biome);
 		}
 		if (snowAndIceMeltInWarmBiomes(level.dimension(), biome) && biome.value().warmEnoughToRain(pos) && skyLightEnoughToMelt(
 				level,
@@ -85,7 +94,13 @@ public class CommonProxy implements ModInitializer {
 	}
 
 	public static boolean snowAndIceMeltInWarmBiomes(ResourceKey<Level> dimension, Holder<Biome> biome) {
-		return fabricSeasons || SnowCommonConfig.snowAndIceMeltInWarmBiomes;
+		if (SnowCommonConfig.snowAndIceMeltInWarmBiomes) {
+			return true;
+		}
+		if (sereneSeasons) {
+			return SereneSeasonsCompat.snowAndIceMeltInWarmBiomes(dimension, biome);
+		}
+		return fabricSeasons;
 	}
 
 	public static boolean skyLightEnoughToMelt(Level level, BlockPos pos, int layers) {
@@ -93,10 +108,16 @@ public class CommonProxy implements ModInitializer {
 	}
 
 	public static boolean coldEnoughToSnow(Level level, BlockPos pos, Holder<Biome> biome) {
+		if (sereneSeasons) {
+			return SereneSeasonsCompat.coldEnoughToSnow(level, pos, biome);
+		}
 		return biome.value().coldEnoughToSnow(pos);
 	}
 
 	public static boolean isWinter(Level level, BlockPos pos, Holder<Biome> biome) {
+		if (sereneSeasons) {
+			return SereneSeasonsCompat.isWinter(level, pos, biome);
+		}
 		return false;
 	}
 

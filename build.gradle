@@ -8,8 +8,11 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.minecraft_version + "-fabric-" + project.mod_version
+version = project.minecraft_version + "-Fabric-" + project.mod_version
 group = project.maven_group
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 repositories {
     maven { url = "https://maven.parchmentmc.org" }
@@ -66,6 +69,12 @@ dependencies {
     modRuntimeOnly "curse.maven:minihud-244260:4593082"
     modRuntimeOnly "curse.maven:malilib-303119:4780782"
 
+    modImplementation "maven.modrinth:serene-seasons:4RgDk9NB"
+    modImplementation "maven.modrinth:glitchcore:25HLOiOl"
+    implementation("com.electronwill.night-config:toml:${nightconfig_version}")
+    implementation("com.electronwill.night-config:core:${nightconfig_version}")
+    implementation("net.jodah:typetools:0.6.3")
+
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.3.2"))
 }
 
@@ -106,7 +115,7 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude '**/*.bat'
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
+        rename { "${it}_${project.archivesBaseName}" }
     }
 }
 
