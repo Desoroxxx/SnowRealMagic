@@ -24,7 +24,8 @@
 		"SpreadableSnowyDirtBlockMixin",
 		"TreeGrowerMixin",
 		"fabric.ServerPlayerGameModeMixin",
-		"fabric.SnowBlockEntityMixin"
+		"fabric.SnowBlockEntityMixin",
+		"sereneseasons.RandomUpdateHandlerMixin"
 	],
 	"client": [
 		"client.CameraMixin",
